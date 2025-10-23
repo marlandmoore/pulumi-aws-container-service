@@ -109,6 +109,7 @@ const loadBalancerComponent = new component.LoadBalancerComponent('loadBalancer'
     securityGroups: [securityGroupId],
     targetGroupPort: 8080,
     vpcId: vpcId, 
+    subnets: subnetIds,
 });
 
 const service = new aws.ecs.Service("service", {
@@ -134,6 +135,6 @@ const service = new aws.ecs.Service("service", {
 // --- 6. Exports ---
 
 export const taskDefinitionArn = taskDefinition.arn;
-//export {lb}
+export {loadBalancerComponent}
 export const ecrRepositoryUrl = repo.repository.repositoryUrl;
 export const fargateServiceArn = service.arn;

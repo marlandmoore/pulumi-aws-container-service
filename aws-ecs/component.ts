@@ -6,6 +6,7 @@ import * as awsx from "@pulumi/awsx";
     interface LoadBalancerComponentArgs {
         loadBalancerName: string;
         vpcId: string;
+        subnets: string[];
         securityGroups: string[];
         targetGroupPort: number;
 
@@ -16,19 +17,21 @@ import * as awsx from "@pulumi/awsx";
          public readonly targetGroupArn: pulumi.Output<string>;
          
         constructor(name: string, args: LoadBalancerComponentArgs, opts?: pulumi.ComponentResourceOptions) {
-            super("myproject:components:DemoComponent", name, args, opts);
+            super("myproject:components:LoadBalancerComponent", name, args, opts);
 
             
             const loadBalancer = new aws.lb.LoadBalancer(args.loadBalancerName, {
                 loadBalancerType: "application",
-                subnets: ["subnet-0a05c1bb8f9014eda","subnet-08d48dcd64940ba6d"],
-                securityGroups: ["sg-0e923f0992fe87414"], 
+                subnets: args.subnets, 
+                securityGroups: args.securityGroups, 
             });
 
             const targetGroup = new aws.lb.TargetGroup("target-group", { 
                     port: args.targetGroupPort,
-                    protocol: "TCP", 
-                    targetType: "alb",
+                    //protocol: "TCP", 
+                    //targetType: "alb",
+                    protocol: "HTTP",
+                    targetType: "ip",
                     vpcId: args.vpcId, 
                     healthCheck: { 
                         path: "/",
