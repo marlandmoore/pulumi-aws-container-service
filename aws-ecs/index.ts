@@ -4,22 +4,26 @@ import * as awsx from "@pulumi/awsx";
 import * as component from "./component"
 
 const config = new pulumi.Config();
-const containerPort = config.getNumber("containerPort") || 8080;
-const cpuValue = config.getNumber("cpu") || 512; 
-const memoryValue = config.getNumber("memory") || 1024; 
-const currentRegion = aws.config.region;
+
+const containerPort = config.getNumber("container-service:containerPort") || 8080;
+const cpuValue = config.getNumber("container-service:cpu") || 512; 
+const memoryValue = config.getNumber("container-service:memory") || 1024; 
+const region = aws.config.region;
+
 
 // VPC and Subnet IDs are required to be set in the Pulumi config file
 const vpcId = config.require("vpcId");
 const subnetIds = config.requireObject<string[]>("subnets"); 
 const securityGroupId = config.require("security-groupId"); 
+const displayName = config.require("display_name");
+
 
 // --- 1. ECR Repository and Image Build ---
 
 // Set up ECR Repository
 const repo = new awsx.ecr.Repository("repo", {
     forceDelete: true,
-    name: "fargate-app-repo",
+    name: "app",
 });
 
 // Push image to ECR (Assumes a Dockerfile exists in the './app' directory)
@@ -73,11 +77,14 @@ const containerDefinitionsJson = image.imageUri.apply(imageUri => JSON.stringify
                 hostPort: containerPort, 
             },
         ],
+        environment: [
+            {name: "DISPLAY_NAME", value: displayName },
+        ],
         logConfiguration: {
             logDriver: "awslogs",
             options: {
                 "awslogs-group": `/ecs/fargate-app-${pulumi.getStack()}`,
-                "awslogs-region": currentRegion,
+                "awslogs-region": region,
                 "awslogs-stream-prefix": "ecs",
             },
         },

@@ -11,6 +11,33 @@ const vpc = new awsx.ec2.Vpc("vpc", {
     },
 });
 
+const securityGroup = new aws.ec2.SecurityGroup("group", {
+    vpcId: vpc.vpcId,
+    ingress: [
+       
+        {
+            fromPort: 443,
+            toPort: 443,
+            protocol: "tcp",
+            cidrBlocks: ["0.0.0.0/0"],
+        },
+        {
+            fromPort: 8080,
+            toPort: 8080,
+            protocol: "tcp",
+            cidrBlocks: ["0.0.0.0/0"],
+        },
+    ],
+    egress: [
+        {
+            fromPort: 0,
+            toPort: 0,
+            protocol: "-1",
+            cidrBlocks: ["0.0.0.0/0"],
+        },
+    ],
+});
+
 export {vpc} ;
 export const vpcId = vpc.vpcId;
 export const privateSubnetIds = vpc.privateSubnetIds;

@@ -4,8 +4,8 @@ config:
   subnets: 
     - subnet-0a05c1bb8f9014eda
     - subnet-08d48dcd64940ba6d
-  security-groupId: sg-05446fced49bb4ec4
+  security-groupId: sg-0e923f0992fe87414
   container-service:containerPort: "8080"
-  container-service:cpu: "1024"
-  container-service:memory: "128"
+  container-service:cpu: "512"
+  container-service:memory: "1024"
   display_name: Sam
