@@ -4,7 +4,7 @@ config:
   subnets: 
     - subnet-0a05c1bb8f9014eda
     - subnet-08d48dcd64940ba6d
-  security-groupId: sg-06ce4eb6d3f88beb4
+  security-groupId: sg-05446fced49bb4ec4
   container-service:containerPort: "8080"
   container-service:cpu: "1024"
   container-service:memory: "128"
