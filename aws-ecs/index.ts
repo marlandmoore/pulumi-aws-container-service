@@ -11,22 +11,16 @@ const memoryValue = config.getNumber("container-service:memory") || 1024;
 const region = aws.config.region;
 
 
-// VPC and Subnet IDs are required to be set in the Pulumi config file
 const vpcId = config.require("vpcId");
 const subnetIds = config.requireObject<string[]>("subnets"); 
 const securityGroupId = config.require("security-groupId"); 
 const displayName = config.require("display_name");
 
-
-// --- 1. ECR Repository and Image Build ---
-
-// Set up ECR Repository
 const repo = new awsx.ecr.Repository("repo", {
     forceDelete: true,
     name: "app",
 });
 
-// Push image to ECR (Assumes a Dockerfile exists in the './app' directory)
 const image = new awsx.ecr.Image("image", {
     repositoryUrl: repo.repository.repositoryUrl,
     context: "./app",
@@ -91,7 +85,6 @@ const containerDefinitionsJson = image.imageUri.apply(imageUri => JSON.stringify
     },
 ]));
 
-// Create CloudWatch Log Group (name depends on stack to avoid conflicts)
 new aws.cloudwatch.LogGroup("fargate-app-log-group", {
     name: `/ecs/fargate-app-${pulumi.getStack()}`,
     retentionInDays: 7,
@@ -99,11 +92,8 @@ new aws.cloudwatch.LogGroup("fargate-app-log-group", {
 
 const taskDefinition = new aws.ecs.TaskDefinition("taskdefinition", {
   family: "service",
-  // Standard Fargate Requirements
   requiresCompatibilities: ["FARGATE"],
   networkMode: "awsvpc",
-  
-  // MANDATORY FARGATE CONFIG (using user's config values)
   cpu: cpuValue.toString(), 
   memory: memoryValue.toString(), 
 
@@ -111,48 +101,20 @@ const taskDefinition = new aws.ecs.TaskDefinition("taskdefinition", {
   taskRoleArn: taskExecutionRole.arn,
   executionRoleArn: executionRole.arn,
 
-  // Container Definitions (using the resolved JSON string)
   containerDefinitions: containerDefinitionsJson,
 });
 
-/*
-const lb = new aws.lb.LoadBalancer("lb", {
-    name: "my-lb", 
-    subnets: subnetIds,
+const loadBalancerComponent = new component.LoadBalancerComponent('loadBalancer', {
+    loadBalancerName: "my-lb",
     securityGroups: [securityGroupId],
-    internal: false, 
-    loadBalancerType: "application",
-});
-const targetGroup = new aws.lb.TargetGroup("app-tg", { 
-    port: containerPort,
-    protocol: "HTTP", 
-    targetType: "ip",
+    targetGroupPort: 8080,
     vpcId: vpcId, 
-    healthCheck: { // Good practice to include a health check
-        path: "/",
-        protocol: "HTTP",
-        matcher: "200",
-        interval: 30,
-        timeout: 5,
-        healthyThreshold: 2,
-    },
 });
-
-new aws.lb.Listener("app-listener", { 
-    loadBalancerArn: lb.arn, 
-    port: 80, 
-    protocol: "HTTP", 
-    defaultActions: [{
-        type: "forward",
-        targetGroupArn: targetGroup.arn,
-    }],
-});
-*/
 
 const service = new aws.ecs.Service("service", {
   launchType: "FARGATE", 
   taskDefinition: taskDefinition.arn,
-  cluster: cluster.arn, // Use the ARN of the cluster
+  cluster: cluster.arn, 
   desiredCount: 1,
 
   networkConfiguration: {
@@ -161,6 +123,11 @@ const service = new aws.ecs.Service("service", {
     securityGroups: [securityGroupId], 
   },
 
+  loadBalancers: [{
+        targetGroupArn: loadBalancerComponent.targetGroupArn,
+        containerName: "app",
+        containerPort: 8080,
+    }],
 });
 
 
