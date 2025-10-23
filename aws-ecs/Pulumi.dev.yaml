@@ -1,2 +1,11 @@
 config:
   aws:region: us-west-2
+  vpcId: vpc-0d16f6450d3272459
+  subnets: 
+    - subnet-0a05c1bb8f9014eda
+    - subnet-08d48dcd64940ba6d
+  security-groupId: sg-06ce4eb6d3f88beb4
+  container-service:containerPort: "8080"
+  container-service:cpu: "1024"
+  container-service:memory: "128"
+  display_name: Sam
