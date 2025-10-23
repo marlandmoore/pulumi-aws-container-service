@@ -8,4 +8,4 @@ config:
   container-service:containerPort: "8080"
   container-service:cpu: "512"
   container-service:memory: "1024"
-  display_name: Sam
+  display_name: Fin

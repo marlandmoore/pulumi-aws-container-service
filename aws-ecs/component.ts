@@ -14,7 +14,8 @@ import * as awsx from "@pulumi/awsx";
 
     export class LoadBalancerComponent extends pulumi.ComponentResource {
 
-         public readonly targetGroupArn: pulumi.Output<string>;
+        public readonly targetGroupArn: pulumi.Output<string>;
+        public readonly dnsName: pulumi.Output<string>;
          
         constructor(name: string, args: LoadBalancerComponentArgs, opts?: pulumi.ComponentResourceOptions) {
             super("myproject:components:LoadBalancerComponent", name, args, opts);
@@ -30,7 +31,7 @@ import * as awsx from "@pulumi/awsx";
                     port: args.targetGroupPort,
                     //protocol: "TCP", 
                     //targetType: "alb",
-                    protocol: "HTTP",
+                    protocol: "TCP",
                     targetType: "ip",
                     vpcId: args.vpcId, 
                     healthCheck: { 
@@ -51,10 +52,11 @@ import * as awsx from "@pulumi/awsx";
                     targetGroupArn: targetGroup.arn,
                 }],
                 port: 8080,
-                protocol: "HTTP"
+                protocol: "TCP"
             });
 
             this.targetGroupArn = targetGroup.arn;
+            this.dnsName = loadBalancer.dnsName;
     }
 
 

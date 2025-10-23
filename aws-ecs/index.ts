@@ -131,10 +131,7 @@ const service = new aws.ecs.Service("service", {
     }],
 });
 
-
-// --- 6. Exports ---
-
 export const taskDefinitionArn = taskDefinition.arn;
-export {loadBalancerComponent}
+export const dnsName = loadBalancerComponent.dnsName;
 export const ecrRepositoryUrl = repo.repository.repositoryUrl;
 export const fargateServiceArn = service.arn;
