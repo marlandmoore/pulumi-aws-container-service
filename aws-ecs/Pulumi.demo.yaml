@@ -1,0 +1,11 @@
+config:
+  aws:region: us-west-2
+  vpcId: vpc-0d16f6450d3272459
+  subnets: 
+    - subnet-0a05c1bb8f9014eda
+    - subnet-08d48dcd64940ba6d
+  security-groupId: sg-0e923f0992fe87414
+  container-service:containerPort: "8080"
+  container-service:cpu: "512"
+  container-service:memory: "1024"
+  display_name: Joe

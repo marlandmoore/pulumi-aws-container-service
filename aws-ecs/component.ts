@@ -21,7 +21,7 @@ import * as awsx from "@pulumi/awsx";
 
             
             const loadBalancer = new aws.lb.LoadBalancer(args.loadBalancerName, {
-                loadBalancerType: "application",
+                loadBalancerType: "network",
                 subnets: args.subnets, 
                 securityGroups: args.securityGroups, 
             });
@@ -50,7 +50,8 @@ import * as awsx from "@pulumi/awsx";
                     type: "forward",
                     targetGroupArn: targetGroup.arn,
                 }],
-                port: 8080
+                port: 8080,
+                protocol: "HTTP"
             });
 
             this.targetGroupArn = targetGroup.arn;
